@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-# import requests
+from format import *
 
 
 def parse_Homepage(text):
@@ -65,3 +65,92 @@ def parse_CampusQueryPage(text):
         , 'courseType_list': courseType_list
     }
     return data
+
+
+def parse_Courses(text):
+    all_courses = []
+    soup = BeautifulSoup(text, 'lxml')
+
+    # parse data
+    course_tags = soup.select('tr')[1:]
+    
+    for course_tag in course_tags:
+        course_data = [(t.text) for t in course_tag.find_all('td')]
+
+        school_type = clean_special_char(course_data[0])
+        course_id, course_name = clean_special_char(course_data[1].split(
+            ' ')[0]), clean_special_char(course_data[1].split(' ')[1])
+        class_id = clean_special_char(course_data[2]).split(' ')[0]
+        if len(clean_special_char(course_data[2]).split(' ')) > 1:
+            class_name =clean_special_char(course_data[2]).split(' ')[1]
+        else: class_name = ''
+
+        # stu_count,stu_limit = -1,int(course_data[3].split('／')[0])
+        # teacher_time =  teacher_time_format(course_data[4], course_data[5])
+        teacher_list = teacher_format(course_data[4])
+
+        if course_data[4].find("實習") != -1 and course_data[4].find("實習") < course_data[4].find("正課"):
+            raise Exception('嘿嘿學校順序跑掉要重寫摟 ' + course_data[4])
+
+        course_grade = clean_special_char(course_data[6])
+        classroom,campus = classroomCampus_format(course_data[7])
+        units = int(clean_special_char(course_data[9]))
+        special_type = clean_special_char(course_data[10])
+        comments = course_data[13]
+
+        
+        if clean_special_char(course_data[11]) == 'Y':
+            isgraduate = True
+        elif clean_special_char(course_data[11]) == 'N':
+            isgraduate = False
+        else:
+            raise Exception('error isgraduate  type' +
+                            clean_special_char(course_data[11]))
+
+
+        course_type = clean_special_char(course_data[8])
+        # if clean_special_char(course_data[8]) == "通識":
+        #     course_type = 0
+        # elif clean_special_char(course_data[8]) == "必修":
+        #     course_type = 1
+        # elif clean_special_char(course_data[8]) == "選修":
+        #     course_type = 2
+        # elif clean_special_char(course_data[8]) == "教育":
+        #     course_type = 3
+        # else:
+        #     raise Exception('error corse_type ' + clean_special_char(course_data[8]))
+
+        semester = clean_special_char(course_data[12])
+        # if clean_special_char(course_data[12]) == "全學年":
+        #     semester = 0 
+        # elif clean_special_char(course_data[12]) == "上學期":
+        #     semester = 1
+        # elif clean_special_char(course_data[12]) == "下學期":
+        #     semester = 2
+        # else:
+        #     raise Exception('error semester ' + clean_special_char(course_data[12]))
+
+    
+        course = {
+            'school_type': school_type,
+            'course_id': course_id,
+            'course_name': course_name,
+            'class_id': class_id,
+            'class_name': class_name,
+            # 'stu_limit': stu_limit,
+            # 'stu_count': stu_count,
+            # 'teacher_time': teacher_time,
+            'teacher_list': teacher_list,
+            'course_grade': course_grade,
+            'classroom': classroom,
+            'campus':campus,
+            'course_type': course_type,
+            'units': units,
+            'special_type': special_type,
+            'isgraduate': isgraduate,
+            'semester': semester,
+            'comments': comments,
+        }
+
+        all_courses.append(course)
+    return all_courses
