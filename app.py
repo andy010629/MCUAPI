@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import uvicorn
 import requests
 import mcu_url
-from parse import parse_Homepage
+from parse import parse_CampusQueryPage, parse_Homepage
 
 app = FastAPI()
 default_headers  = {
@@ -66,15 +66,40 @@ async def getStudentInfo(request: Request):
     }
     return res
 
-@app.get("/api/courses")
-async def getCourses(request: Request):
-    if 'std%5Fno' not in request.cookies or request.cookies['std%5Fno'] == "":
-        return 401
-    res = requests.get(mcu_url.HomePageUrl,
-                       headers=default_headers, cookies=request.cookies)
+@app.get("/api/courses/Queryinfo")
+async def getQueryInfo(request: Request):
+    res = requests.get(mcu_url.CoursesQueryUrl,headers=default_headers, cookies=request.cookies)
     res.encoding = 'big5-hkscs'
-    courses = parse_Homepage(res.text)['courses']
-    return courses
+    query_info = parse_CampusQueryPage(res.text)
+    return query_info
+
+@app.get("/api/courses/campus")
+async def getCampus(request: Request):
+    res = requests.get(mcu_url.CoursesQueryUrl,headers=default_headers, cookies=request.cookies)
+    res.encoding = 'big5-hkscs'
+    campus_list = parse_CampusQueryPage(res.text)['campus_list']
+    return campus_list
+
+@app.get("/api/courses/department")
+async def getDepartment(request: Request):
+    res = requests.get(mcu_url.CoursesQueryUrl,headers=default_headers, cookies=request.cookies)
+    res.encoding = 'big5-hkscs'
+    department_list = parse_CampusQueryPage(res.text)['department_list']
+    return department_list
+
+@app.get("/api/courses/courseType")
+async def getCourseType(request: Request):
+    res = requests.get(mcu_url.CoursesQueryUrl,headers=default_headers, cookies=request.cookies)
+    res.encoding = 'big5-hkscs'
+    courseType_list = parse_CampusQueryPage(res.text)['courseType_list']
+    return courseType_list
+
+@app.get("/api/courses/schoolType")
+async def getSchoolType(request: Request):
+    res = requests.get(mcu_url.CoursesQueryUrl,headers=default_headers, cookies=request.cookies)
+    res.encoding = 'big5-hkscs'
+    schoolType_list = parse_CampusQueryPage(res.text)['schoolType_list']
+    return schoolType_list
 
 
 uvicorn.run(app, host="0.0.0.0",port=8000)
