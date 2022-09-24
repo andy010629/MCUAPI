@@ -1,10 +1,10 @@
-from typing import Optional
 from fastapi import FastAPI, Response, Request
-from parse import parse_Homepage
+from starlette.responses import RedirectResponse
 from pydantic import BaseModel
 import uvicorn
 import requests
 import mcu_url
+from parse import parse_Homepage
 
 app = FastAPI()
 default_headers  = {
@@ -14,6 +14,14 @@ default_headers  = {
 class LoginInfo(BaseModel):
     student_id: str
     password: str
+
+
+@app.get('/')
+async def root():
+    response = RedirectResponse(url="/docs")
+    return response
+
+
 
 
 @app.post("/api/login")
