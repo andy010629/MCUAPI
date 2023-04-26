@@ -9,6 +9,8 @@ from parse import parse_CampusQueryPage, parse_Homepage,parse_Courses
 # allow cors
 from fastapi.middleware.cors import CORSMiddleware
 origins = [
+    'http://localhost:3000',
+    'http://localhost:5173s',
     '*'
 ]
 
