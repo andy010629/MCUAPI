@@ -6,6 +6,14 @@ import requests
 import mcu_url
 from parse import parse_CampusQueryPage, parse_Homepage,parse_Courses
 
+# allow cors
+from fastapi.middleware.cors import CORSMiddleware
+origins = [
+    '*'
+]
+
+
+
 tags_metadata = [
     {
         "name": "Login/Logout",
@@ -22,6 +30,15 @@ tags_metadata = [
 ]
 
 app = FastAPI(title="MCU API",openapi_tags=tags_metadata)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 default_headers  = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'
 }
